@@ -71,6 +71,7 @@ export default async function DashboardPage() {
             { href: "/dashboard", icon: "🏠", label: "Overview", active: true },
             { href: "/dashboard/reviews", icon: "⭐", label: "Reviews" },
             { href: "/dashboard/requests", icon: "📨", label: "Review Requests" },
+            { href: "/dashboard/billing", icon: "💳", label: "Billing & Plans" },
             { href: "/dashboard/analytics", icon: "📊", label: "Analytics" },
             { href: "/dashboard/settings", icon: "⚙️", label: "Settings" },
           ].map((item) => (
@@ -156,7 +157,7 @@ export default async function DashboardPage() {
               {[
                 { done: true, task: "Create your account" },
                 { done: true, task: "Register your business" },
-                { done: false, task: "Choose a subscription plan" },
+                { done: business.subscription?.status === "ACTIVE", task: "Choose a subscription plan" },
                 { done: false, task: "Send your first review request" },
                 { done: false, task: "Set up AI auto-responses" },
               ].map((item, i) => (
@@ -169,7 +170,7 @@ export default async function DashboardPage() {
               ))}
             </div>
             <Link href="/subscription" className="dash-start-btn">
-              Choose a Plan →
+              {business.subscription?.status === "ACTIVE" ? "Manage Subscription →" : "Choose a Plan →"}
             </Link>
           </div>
         </div>

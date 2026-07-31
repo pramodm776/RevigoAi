@@ -27,8 +27,8 @@ enum BusinessCategory {
 enum SubscriptionPlan {
   FREE
   STARTER
-  PROFESSIONAL
-  ENTERPRISE
+  PRO
+  AGENCY
 }
 
 enum SubscriptionStatus {
@@ -36,6 +36,12 @@ enum SubscriptionStatus {
   INACTIVE
   CANCELLED
   PAST_DUE
+}
+
+enum PaymentStatus {
+  SUCCESS
+  FAILED
+  PENDING
 }
 
 model Business {
@@ -62,14 +68,36 @@ model Business {
 }
 
 model Subscription {
-  id         String             @id @default(cuid())
-  businessId String             @unique
-  plan       SubscriptionPlan   @default(FREE)
-  status     SubscriptionStatus @default(INACTIVE)
-  startedAt  DateTime?
-  expiresAt  DateTime?
-  createdAt  DateTime           @default(now())
-  updatedAt  DateTime           @updatedAt
+  id                     String             @id @default(cuid())
+  businessId             String             @unique
+  plan                   SubscriptionPlan   @default(FREE)
+  status                 SubscriptionStatus @default(INACTIVE)
+  razorpaySubscriptionId String?
+  razorpayOrderId        String?
+  currentPeriodStart     DateTime?
+  currentPeriodEnd       DateTime?
+  startedAt              DateTime?
+  expiresAt              DateTime?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
 
-  business   Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  business               Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  payments               Payment[]
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  subscriptionId    String
+  razorpayPaymentId String        @unique
+  razorpayOrderId   String?
+  razorpaySignature String?
+  amount            Int           // Amount in paise (e.g. 49900 = ₹499)
+  currency          String        @default("INR")
+  status            PaymentStatus @default(PENDING)
+  createdAt         DateTime      @default(now())
+
+  subscription      Subscription  @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([subscriptionId])
+  @@index([razorpayPaymentId])
 }
